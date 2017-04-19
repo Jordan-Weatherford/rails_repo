@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Events Dashboard</title>
+    </head>
+    <body>
+
+
+        <h1><%= @event.id %></h1>
+<!-- 'logout' and 'events dashboard' buttons -->
+        <a href="/events">Events Dashboard</a>
+        <a href="/logout">Logout</a>
+
+        <h1><%= @event.name %></h1>
+        <p>Host: <%= @event.user.first_name %></p>
+        <p>Date: <%= @event.date %></p>
+        <p>Location: <%= @event.city %>, <%= @event.state %></p>
+        <p>People who are attending the event: <%= @attendees.count %></p>
+
+
+
+        <table><!-- event attendees display -->
+            <tr>
+                <th>Name</th>
+                <th>Location</th>
+                <th>State</th>
+            </tr>
+            <% if @attendees %>
+                <% @attendees.each do |attendee| %>
+                    <tr>
+                        <td><%= attendee.first_name %></td>
+                        <td><%= attendee.city %></td>
+                        <td><%= attendee.state %></td>
+                    </tr>
+                <% end %>
+            <% end %>
+        </table><!-- end of event attendees display -->
+
+
+        <h4>Discussion about this event:</h4><!-- comments about event display -->
+        <div style="border: 1px solid black; height: 350px; width: 300px; overflow: scroll; padding: 5px">
+            <% if @comments %>
+                <% @comments.each do |comment| %>
+                    <p><%= comment.user.first_name %> says, <%= comment.content %></p>
+                    <p>----------------------------------</p>
+                <% end %>
+            <% end %>
+        </div><!-- END of comments about event -->
+        <br>
+        <form action="/add_comment/<%= @event.id %>" method="post"><!-- ADD comments -->
+            <input name="authenticity_token" value="<%= form_authenticity_token %>" type="hidden">
+            <textarea name="comment" rows="8" cols="50"></textarea>
+            <input type="submit" value="Add Comment">
+        </form><!-- end of ADD comments -->
+
+
+
+    </body>
+</html>

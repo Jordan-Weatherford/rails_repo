@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Events</title>
+    </head>
+    <body>
+<!-- 'edit' and 'logout' buttons -->
+        <a href="/user/<%= session[:user_id] %>">Edit My Profile</a>
+        <a href="/logout">Logout</a>
+
+
+
+
+        <h1>Welcome, <%= @current_user.first_name %>!</h1>
+        <h2><%= @current_user.id %></h2>
+        <h3>Here are some of the events in your state:</h3>
+
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Date</th>
+                <th>Location</th>
+                <th>Host</th>
+                <th>Action/Status</th>
+            </tr>
+            <% if @events_in_users_state %>
+                <% @events_in_users_state.each do |event| %>
+                    <tr>
+                        <td><a href="/events/<%= event.id %>"><%= event.name %></a></td>
+                        <td><%= event.date %></td>
+                        <td><%= event.city %></td>
+                        <td><%= event.user.first_name %></td>
+                        <td>
+                            <% if event.user.id == session[:user_id] %>
+                                <a href="/edit/<%= event.id %>">Edit</a>
+                                <a href="/destroy_event/<%= event.id %>">Delete</a>
+                            <% end %>
+                            <% if Owner.where(event_id: event.id, user_id: session[:user_id]) %>
+                                <a href="/join_event/<%= event.id %>">Join</a>
+                                false
+                            <% else %>
+                                true
+                            <% end %>
+                        </td>
+                    </tr>
+                <% end %>
+            <% end %>
+        </table><!-- IN state events table end -->
+        <br><br><br><br><br><br>
+
+        <h3>Here are some events in other states:</h3>
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Date</th>
+                <th>Location</th>
+                <th>Host</th>
+                <th>Action/Status</th>
+            </tr>
+            <% if @events_not_in_users_state %>
+                <% @events_not_in_users_state.each do |event| %>
+                    <tr>
+                        <td><a href="/events/<%= event.id %>"><%= event.name %></a></td>
+                        <td><%= event.date %></td>
+                        <td><%= event.city %></td>
+                        <td><%= event.user.first_name %></td>
+                        <td>
+                        <% if event.user.id == session[:user_id] %>
+                            <a href="/edit/<%= event.id %>">Edit</a>
+                        true
+                        <% else %>
+                        false
+                        <% end %>
+                        </td>
+                    </tr>
+                <% end %>
+            <% end %>
+        </table><!-- OUT OF state events table end -->
+
+
+        <!-- flash messages  -->
+        <% if flash[:messages] %>
+        <ul>
+            <% flash[:messages].each do |message| %>
+            <li><%= message %></li>
+            <% end %>
+        </ul>
+        <% end %>
+
+
+<!-- Add a new event -->
+<br><br><br><br><br>
+<div class="register">
+    <form action="/add_event" method="post">
+        <input name="authenticity_token" value="<%= form_authenticity_token %>" type="hidden">
+        Name:
+        <input type="text" name="name"><br>
+        Date:
+        <input type="date" name="date"><br>
+        Location:
+        <input type="text" name="city">
+        <select name="state">
+            <option value="AL">Alabama</option>
+            <option value="AK">Alaska</option>
+            <option value="AZ">Arizona</option>
+            <option value="AR">Arkansas</option>
+            <option value="CA">California</option>
+            <option value="CO">Colorado</option>
+            <option value="CT">Connecticut</option>
+            <option value="DE">Delaware</option>
+            <option value="DC">District Of Columbia</option>
+            <option value="FL">Florida</option>
+            <option value="GA">Georgia</option>
+            <option value="HI">Hawaii</option>
+            <option value="ID">Idaho</option>
+            <option value="IL">Illinois</option>
+            <option value="IN">Indiana</option>
+            <option value="IA">Iowa</option>
+            <option value="KS">Kansas</option>
+            <option value="KY">Kentucky</option>
+            <option value="LA">Louisiana</option>
+            <option value="ME">Maine</option>
+            <option value="MD">Maryland</option>
+            <option value="MA">Massachusetts</option>
+            <option value="MI">Michigan</option>
+            <option value="MN">Minnesota</option>
+            <option value="MS">Mississippi</option>
+            <option value="MO">Missouri</option>
+            <option value="MT">Montana</option>
+            <option value="NE">Nebraska</option>
+            <option value="NV">Nevada</option>
+            <option value="NH">New Hampshire</option>
+            <option value="NJ">New Jersey</option>
+            <option value="NM">New Mexico</option>
+            <option value="NY">New York</option>
+            <option value="NC">North Carolina</option>
+            <option value="ND">North Dakota</option>
+            <option value="OH">Ohio</option>
+            <option value="OK">Oklahoma</option>
+            <option value="OR">Oregon</option>
+            <option value="PA">Pennsylvania</option>
+            <option value="RI">Rhode Island</option>
+            <option value="SC">South Carolina</option>
+            <option value="SD">South Dakota</option>
+            <option value="TN">Tennessee</option>
+            <option value="TX">Texas</option>
+            <option value="UT">Utah</option>
+            <option value="VT">Vermont</option>
+            <option value="VA">Virginia</option>
+            <option value="WA">Washington</option>
+            <option value="WV">West Virginia</option>
+            <option value="WI">Wisconsin</option>
+            <option value="WY">Wyoming</option>
+        </select><br>
+        <input type="submit" value="Add Event">
+    </form>
