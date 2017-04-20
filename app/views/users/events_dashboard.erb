@@ -9,13 +9,11 @@
         <a href="/user/<%= session[:user_id] %>">Edit My Profile</a>
         <a href="/logout">Logout</a>
 
-
-
-
+<!-- welcome message -->
         <h1>Welcome, <%= @current_user.first_name %>!</h1>
-        <h2><%= @current_user.id %></h2>
-        <h3>Here are some of the events in your state:</h3>
 
+<!-- events in the users same state -->
+        <h3>Here are some of the events in your state:</h3>
         <table>
             <tr>
                 <th>Name</th>
@@ -32,23 +30,31 @@
                         <td><%= event.city %></td>
                         <td><%= event.user.first_name %></td>
                         <td>
-                            <% if event.user.id == session[:user_id] %>
-                                <a href="/edit/<%= event.id %>">Edit</a>
-                                <a href="/destroy_event/<%= event.id %>">Delete</a>
+<!-- IF you aren't hosting the event -->
+                            <% if event.user.id != session[:user_id] %>
+<!-- IF you aren't hosting or attending the event -->
+                                <% unless Owner.where(event_id: event.id, user_id: session[:user_id]).exists? %>
+                                    <a href="/join_event/<%= event.id %>">Join</a>
+                                <% end %>
                             <% end %>
-                            <% if Owner.where(event_id: event.id, user_id: session[:user_id]) %>
-                                <a href="/join_event/<%= event.id %>">Join</a>
-                                false
-                            <% else %>
-                                true
+<!-- IF you aren't hosting and are attending the event -->
+                            <% if event.user.id != session[:user_id] %>
+                                <% if Owner.where(event_id: event.id, user_id: session[:user_id]).exists? %>
+                                    Joining...&nbsp;&nbsp;<a href="/cancel/<%= event.id %>">Cancel</a>
+                                <% end %>
+                            <% end %>
+<!-- IF you are the event host -->
+                            <% if event.user.id == session[:user_id] %>
+                                <a href="/edit/<%= event.id %>">Edit</a> | <a href="/destroy_event/<%= event.id %>">Delete</a>
                             <% end %>
                         </td>
                     </tr>
                 <% end %>
             <% end %>
-        </table><!-- IN state events table end -->
-        <br><br><br><br><br><br>
+        </table>
+<!-- IN state events table end -->
 
+<!-- OUT of state events display table  -->
         <h3>Here are some events in other states:</h3>
         <table>
             <tr>
@@ -66,32 +72,32 @@
                         <td><%= event.city %></td>
                         <td><%= event.user.first_name %></td>
                         <td>
-                        <% if event.user.id == session[:user_id] %>
-                            <a href="/edit/<%= event.id %>">Edit</a>
-                        true
-                        <% else %>
-                        false
-                        <% end %>
+<!-- IF you aren't hosting the event -->
+                            <% if event.user.id != session[:user_id] %>
+<!-- IF you aren't hosting or attending the event -->
+                                <% unless Owner.where(event_id: event.id, user_id: session[:user_id]).exists? %>
+                                    <a href="/join_event/<%= event.id %>">Join</a>
+                                <% end %>
+                            <% end %>
+<!-- IF you aren't hosting and are attending the event -->
+                            <% if event.user.id != session[:user_id] %>
+                                <% if Owner.where(event_id: event.id, user_id: session[:user_id]).exists? %>
+                                    Joining...&nbsp;&nbsp;<a href="/cancel/<%= event.id %>">Cancel</a>
+                                <% end %>
+                            <% end %>
+<!-- IF you are the event host -->
+                            <% if event.user.id == session[:user_id] %>
+                                <a href="/edit/<%= event.id %>">Edit</a> | <a href="/destroy_event/<%= event.id %>">Delete</a>
+                            <% end %>
                         </td>
                     </tr>
                 <% end %>
             <% end %>
-        </table><!-- OUT OF state events table end -->
-
-
-        <!-- flash messages  -->
-        <% if flash[:messages] %>
-        <ul>
-            <% flash[:messages].each do |message| %>
-            <li><%= message %></li>
-            <% end %>
-        </ul>
-        <% end %>
-
+        </table>
+<!-- OUT of state events display table END  -->
 
 <!-- Add a new event -->
-<br><br><br><br><br>
-<div class="register">
+    <h2>Add Event</h2>
     <form action="/add_event" method="post">
         <input name="authenticity_token" value="<%= form_authenticity_token %>" type="hidden">
         Name:
@@ -101,6 +107,7 @@
         Location:
         <input type="text" name="city">
         <select name="state">
+            <option value=""></option>
             <option value="AL">Alabama</option>
             <option value="AK">Alaska</option>
             <option value="AZ">Arizona</option>
@@ -155,3 +162,12 @@
         </select><br>
         <input type="submit" value="Add Event">
     </form>
+
+<!-- flash messages  -->
+    <% if flash[:messages] %>
+        <ul>
+        <% flash[:messages].each do |message| %>
+            <li><%= message %></li>
+        <% end %>
+        </ul>
+    <% end %>
